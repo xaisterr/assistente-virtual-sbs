@@ -1,0 +1,625 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        144
+      ],
+      "id": "54076956-feed-4a32-a726-ec8d36de30f4",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a3c3362d-4a11-4f08-9e19-989777b8a833",
+              "name": "session",
+              "value": "={{ $json.body.session }}",
+              "type": "string"
+            },
+            {
+              "id": "99a10db0-ed06-4f9f-b7e6-973a6750c11c",
+              "name": "chatid",
+              "value": "={{ $json.body.payload.from }}",
+              "type": "string"
+            },
+            {
+              "id": "6fdfac90-98b1-488a-bd42-1a70bfe97907",
+              "name": "pushName",
+              "value": "={{ $json.body.payload._data.Info.PushName }}",
+              "type": "string"
+            },
+            {
+              "id": "5148b911-bc60-4785-bfa1-bdbdf662ce98",
+              "name": "payload_id",
+              "value": "={{ $json.body.payload.id }}",
+              "type": "string"
+            },
+            {
+              "id": "c1cf136d-bc1e-4045-a57e-1dd735f7edd5",
+              "name": "event",
+              "value": "={{ $json.body.event }}",
+              "type": "string"
+            },
+            {
+              "id": "ceac35ed-9fe6-4b5a-8854-cf92144444ae",
+              "name": "message",
+              "value": "={{ ($json.body.payload.body || '').replaceAll('[ENCAMINHAR]', '') }}",
+              "type": "string"
+            },
+            {
+              "id": "3c4c1fdc-57a5-40f6-8ae5-9676b19a5021",
+              "name": "fromMe",
+              "value": "={{ $json.body.payload.fromMe }}",
+              "type": "boolean"
+            },
+            {
+              "id": "0d106782-a201-471e-952b-86dd435a4ab0",
+              "name": "responsavel",
+              "value": "NUMERO_COM_DDI@c.us",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        144
+      ],
+      "id": "fda657e1-23ce-49ec-92a4-NUMERO_COM_DDIf2",
+      "name": "Dados"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Dados').item.json.event === 'message' && $('Dados').item.json.fromMe === false && !!$('Dados').item.json.message }}",
+                    "rightValue": "message",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "d8596c09-c5de-4601-84b0-fe3e8400ad9e"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        144
+      ],
+      "id": "cd55fb6c-5ddf-4827-abe6-d2513671a01b",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Dados').item.json.message }}",
+        "options": {
+          "systemMessage": "=Você é um guia turístico virtual de São Bento do Sapucaí - SP.\n\nSeu objetivo é ajudar turistas a conhecer a cidade, indicando pontos \nturísticos, restaurantes, hospedagens, trilhas, eventos e atividades que \nestejam na base de conhecimento abaixo.\n\nUse como base as informações fornecidas no contexto abaixo. Não invente \ndados sobre locais, preços ou horários que não estejam nessa base. Caso \nnão tenha certeza sobre alguma informação, avise o usuário.\n\nResponda sempre em português do Brasil, de forma simpática, natural e \nobjetiva. Mensagens curtas, no estilo de conversa de WhatsApp — evite \nparágrafos longos.\n\nFormatação: use a sintaxe do WhatsApp, não Markdown. Para negrito, use \napenas UM asterisco de cada lado (*assim*), nunca dois (**assim**). \nPara listas, use hífen (-) seguido de espaço, sem numeração automática. \nNão use markdown de cabeçalho (#) nem links em colchetes. Não escreva \nemoticons de texto como :) ou *:). Se usar emoji, use poucos.\n\nQuando o usuário perguntar sobre um local, explique o que é e por que \nvale a pena conhecer, usando somente o que estiver escrito no contexto. \nSó diga onde fica se essa informação estiver no contexto.\n\nAjude o turista a montar roteiros de acordo com o tempo disponível e \nseus interesses, usando apenas locais que estejam no contexto.\n\nPAGAMENTOS, RESERVAS E ATENDIMENTO HUMANO: você não faz reservas nem \nrecebe pagamentos. Quando o turista pedir para reservar, pagar, fechar \num pacote ou falar com uma pessoa, responda com uma mensagem curta \ndizendo que vai avisar a equipe, que ela entrará em contato por aqui, \ne coloque exatamente o texto [ENCAMINHAR] no final da resposta. \nNão prometa prazo de retorno. Use [ENCAMINHAR] somente nesses casos \ne nunca em outras respostas.\nPerguntas sobre preço NÃO são reservas: responda com o valor se ele \nestiver no contexto; se não estiver, diga que não tem esse valor, sem \nusar [ENCAMINHAR].\n\nSUGESTÕES: só ofereça ou sugira assuntos que existam no contexto abaixo. \nNunca ofereça falar de pratos típicos, transporte ou qualquer tema que \nnão esteja no contexto. Não termine toda resposta com uma pergunta; só \npergunte quando ajudar o turista.\n\nIMPORTANTE: use APENAS as informações exatas do contexto abaixo. Não \nadicione detalhes como altura, distância, coordenadas, preços ou \nhorários que não estejam explicitamente escritos no contexto, mesmo \nque você \"saiba\" essa informação de outra fonte. Se o contexto não \ntiver um dado específico que o usuário pediu, diga que não tem essa \ninformação disponível, em vez de completar com conhecimento próprio. \nLinhas com \"PREENCHER\" ou \"não informado\" contam como informação \ninexistente.\n\n[CONTEXTO / BASE DE CONHECIMENTO]\n{{ $('Buscar Base Conhecimento').item.json.data }}\n\nLEMBRETE FINAL: revise sua resposta antes de enviar. Todo dado citado \ndeve estar no contexto acima. Use [ENCAMINHAR] apenas quando o turista \npedir reserva, pagamento ou atendente. Não ofereça assuntos que não \nestão no contexto. Use apenas um asterisco para negrito."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1456,
+        32
+      ],
+      "id": "503029ee-0388-4dca-a195-5319516c26c4",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1456,
+        320
+      ],
+      "id": "b95fd91e-fc6b-464d-8fbf-29284063c94b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial googlePalmApi)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Dados').item.json.chatid }}",
+        "sessionTTL": 3600,
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.6,
+      "position": [
+        1552,
+        320
+      ],
+      "id": "de7c4fae-cbe1-4e03-8833-42a24c103689",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial redis)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "URL_DA_PLANILHA_PUBLICADA_COMO_CSV",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1248,
+        128
+      ],
+      "id": "4ea51d7e-5f2c-4a0d-bd32-7ace0c6ae796",
+      "name": "Buscar Base Conhecimento",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4edae43a-b0ca-4244-9b20-07ae4a562084",
+              "leftValue": "={{ $('Dados').item.json.message.toLowerCase() }}",
+              "rightValue": "vim pelo site",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "1fbbfdcc-e632-4e93-b347-b40e02c5a8db",
+              "leftValue": "={{ $json.liberado }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        784,
+        144
+      ],
+      "id": "104ca83f-14d6-4038-86e6-acba7aaf5423",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "liberado",
+        "key": "=liberado:{{ $('Dados').item.json.chatid }}",
+        "keyType": "string",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        592,
+        144
+      ],
+      "id": "8946a7b6-8082-4517-b4b2-9a4362820b06",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial redis)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=liberado:{{ $('Dados').item.json.chatid }}",
+        "value": "1",
+        "expire": true,
+        "ttl": 86400
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        128
+      ],
+      "id": "9eee4fb6-0aff-49c6-a4e7-0f381d9ae469",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial redis)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bdb8a246-2a51-4546-8ce0-8f3c2093321e",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "[ENCAMINHAR]",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1792,
+        16
+      ],
+      "id": "56f87c4e-c8fa-44f3-bb51-3a2bde479144",
+      "name": "Precisa encaminhar?"
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Text",
+        "session": "={{ $('Dados').item.json.session }}",
+        "chatId": "={{ $('Dados').item.json.responsavel }}",
+        "text": "=Novo pedido de atendimento pelo bot.\n{{ (() => { const pn = $('Buscar Telefone').item.json.pn; const id = $('Dados').item.json.chatid; const n = (pn || (id.endsWith('@c.us') ? id : '')).replace('@c.us',''); return n ? 'Turista: +' + n + '\\nAbrir conversa: https://wa.me/' + n : 'Número do turista não identificado. Responda pelo WhatsApp do assistente.'; })() }}\nMensagem: {{ $('Dados').item.json.message }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-waha.WAHA",
+      "typeVersion": 202411,
+      "position": [
+        2160,
+        -96
+      ],
+      "id": "9a2daf1c-0c92-4eac-85c0-328fa5a72685",
+      "name": "Avisar Responsável",
+      "credentials": {
+        "wahaApi": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial wahaApi)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=http://host.docker.internal:3000/api/{{ $('Dados').item.json.session }}/lids/{{ encodeURIComponent($('Dados').item.json.chatid) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1984,
+        -96
+      ],
+      "id": "084357ff-3658-49c7-a047-927c0186465f",
+      "name": "Buscar Telefone",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Seen",
+        "session": "={{ $('Dados').item.json.session }}",
+        "chatId": "={{ $('Dados').item.json.chatid }}",
+        "messageId": "={{ $('Dados').item.json.payload_id }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-waha.WAHA",
+      "typeVersion": 202411,
+      "position": [
+        2320,
+        32
+      ],
+      "id": "826316f5-ef63-45e2-a9f5-1363d3ed39c1",
+      "name": "Marcar como Lido",
+      "credentials": {
+        "wahaApi": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial wahaApi)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Text",
+        "session": "={{ $('Dados').item.json.session }}",
+        "chatId": "={{ $('Dados').item.json.chatid }}",
+        "text": "={{ $('AI Agent').item.json.output.replaceAll('[ENCAMINHAR]', '').trim() }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-waha.WAHA",
+      "typeVersion": 202411,
+      "position": [
+        2512,
+        32
+      ],
+      "id": "a63da7c5-c3fb-4e69-abca-bfbaabd38d49",
+      "name": "Responder Turista",
+      "credentials": {
+        "wahaApi": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial wahaApi)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Text",
+        "session": "={{ $('Dados').item.json.session }}",
+        "chatId": "={{ $('Dados').item.json.chatid }}",
+        "text": "=Desculpe, não consegui responder agora. Tente novamente em alguns instantes.",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-waha.WAHA",
+      "typeVersion": 202411,
+      "position": [
+        1728,
+        192
+      ],
+      "id": "9e9b63f5-c388-45f6-8eb9-f9c8de1ce593",
+      "name": "Resposta padrão de erro",
+      "credentials": {
+        "wahaApi": {
+          "id": "CONFIGURAR",
+          "name": "CONFIGURAR (credencial wahaApi)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Precisa encaminhar?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta padrão de erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Base Conhecimento": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta padrão de erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "Buscar Base Conhecimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Precisa encaminhar?": {
+      "main": [
+        [
+          {
+            "node": "Buscar Telefone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marcar como Lido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisar Responsável": {
+      "main": [
+        [
+          {
+            "node": "Marcar como Lido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Telefone": {
+      "main": [
+        [
+          {
+            "node": "Avisar Responsável",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar como Lido": {
+      "main": [
+        [
+          {
+            "node": "Responder Turista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
